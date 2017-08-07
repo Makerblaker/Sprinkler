@@ -19,7 +19,7 @@ CancelButton = 4
 WaterSensor = 18
 
 # Set Start time
-startTime = '12:24:00'.split(':')
+startTime = '08:00:00'.split(':')
 
 # Set Duration for each zone HH:MM:SS
 durationTime = '00:30:00'
