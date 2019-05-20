@@ -122,10 +122,10 @@ def water():
 	sleep(2)
 
 def addLog(currentZone, addedText):
-	print time.strftime("%x %X") + ": " + currentZone + ": " + addedText
-	try:
+    print time.strftime("%x %X") + ": " + currentZone + ": " + addedText
+    try:
 		thread.start_new_thread( dbLog, (currentZone, addedText, ) )
-	except:
+    except:
 		print ("Error: unable to start thread")
 
 # Add log to database

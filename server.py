@@ -128,7 +128,8 @@ def statusLED(status):
 
 def addLog(currentZone, addedText):
 	global t2
-	print time.strftime("%x %X") + ": " + str(currentZone) + ": " + addedText
+	now = datetime.datetime.now()
+	#print now + ": " + str(currentZone) + ": " + addedText
 	try:
 		t2 = Thread(target=dbLog, args=(currentZone, addedText, ) )
 		t2.start()
@@ -155,18 +156,18 @@ def dbLog(currentZone, addedText):
 def destroy():
 	for i in Zones:
 		GPIO.output(i, GPIO.LOW)
-	
 	GPIO.output(StatusLED, GPIO.LOW)
-	GPIO.cleanup()
 	addLog('System', 'Sprinkler Script OFF')
 	sleep(2)
-	exit()
 
 if __name__ == '__main__':
     setup()
     try:
         mainRun()
     except KeyboardInterrupt:
-		destroy()
+		  destroy()
+    finally:
+		  GPIO.cleanup()
+		  exit()
 else:
 	destroy()
