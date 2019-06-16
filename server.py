@@ -6,7 +6,7 @@ import time
 from time import sleep
 from sys import exit
 import datetime
-import MySQLdb
+#import MySQLdb
 
 # Start task command
 # sleep 30 && python /home/pi/Scripts/Sprinkler/Sprinkler.py > /home/pi/Scripts/Sprinkler/log.txt 2>&1
@@ -127,31 +127,10 @@ def statusLED(status):
 		GPIO.output(StatusLED, GPIO.LOW)
 
 def addLog(currentZone, addedText):
-	global t2
 	now = datetime.datetime.now()
-	#print now + ": " + str(currentZone) + ": " + addedText
-	try:
-		t2 = Thread(target=dbLog, args=(currentZone, addedText, ) )
-		t2.start()
-	except:
-		print("Error: unable to start thread")
+	print ("{0}: {1}: {2}".format(now, currentZone, addedText))
 
-# Add log to database
-# Seperated function so we can run this in another Thread due to database lag
-def dbLog(currentZone, addedText):
 
-	# Connect to database
-	db = MySQLdb.connect(host="192.168.1.2",    # your host, usually localhost
-                     user="sprinkler",        	# your username
-                     passwd="sprinkler",  		# your password
-                     db="sprinkler")        	# name of the data base
-	cur = db.cursor()
-
-	# Use all the SQL you like
-	cur.execute("INSERT INTO sprinkler.tbllogs (zone, description) VALUES (\"" + currentZone + "\", \"" + addedText + "\")")
-	db.commit()
-	cur.close()
-	db.close()
 
 def destroy():
 	for i in Zones:
@@ -161,13 +140,13 @@ def destroy():
 	sleep(2)
 
 if __name__ == '__main__':
-    setup()
-    try:
-        mainRun()
-    except KeyboardInterrupt:
-		  destroy()
-    finally:
-		  GPIO.cleanup()
-		  exit()
+	setup()
+	try:
+		mainRun()
+	except KeyboardInterrupt:
+		destroy()
+	finally:
+		GPIO.cleanup()
+		exit()
 else:
 	destroy()
