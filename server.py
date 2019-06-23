@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from threading import Thread
+import _thread
 import RPi.GPIO as GPIO
 import socket
 import time
@@ -20,10 +20,11 @@ CancelButton = 4
 WaterSensor = 18
 
 # Water Sensor Enabled?
-Sensor = True
+Sensor = False
 
 #Is it currently raining
 isRaining = False
+defaultWaitDuration = 0
 
 def setup():
 	global serversocket,t
@@ -36,7 +37,8 @@ def setup():
 	GPIO.setup(CancelButton, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 	# Input Rain Sensor
-	GPIO.setup(WaterSensor, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+	if Sensor:
+		GPIO.setup(WaterSensor, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 	# Setup 4 zones on GPIO
 	# Turn all Zones "OFF"
@@ -81,14 +83,10 @@ def mainRun():
 
 			# What was the command?
 			if(requestType[0] == "ZONE"):
-				# Turn on zone
-				zone(int(requestType[1]), "ON")
-
-				# Sleep for that amount
-				sleep(int(requestType[2]) * 60)
-
-				# Turn off zone
-				zone(int(requestType[1]), "OFF")
+				
+				# Start flash
+				_thread.start_new_thread(water, (requestType[1], requestType[2], ) )
+				
 			elif(requestType[0] == "QUIT"):
 				destroy()
 		else:
@@ -97,7 +95,19 @@ def mainRun():
 				rain()
 				sleep(2)
 
-
+# Water the lawn 
+def water(zoneNum, duration):
+	# Turn on zone
+	zone(int(zoneNum), "ON")
+	statusLED("on")
+	
+	# Sleep for that amount
+	sleep(int(duration) * 60)
+	
+	# Turn off zone
+	zone(int(zoneNum), "OFF")
+	statusLED("off")
+	
 # Zone Control Setup
 def zone(zoneSelect, onoff):
 	if(onoff == "ON"):
@@ -133,11 +143,14 @@ def addLog(currentZone, addedText):
 
 
 def destroy():
+	global serversocket
+	serversocket.shutdown(socket.SHUT_RDWR)
+	
 	for i in Zones:
 		GPIO.output(i, GPIO.LOW)
 	GPIO.output(StatusLED, GPIO.LOW)
 	addLog('System', 'Sprinkler Script OFF')
-	sleep(2)
+	exit()
 
 if __name__ == '__main__':
 	setup()
