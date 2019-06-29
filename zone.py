@@ -10,10 +10,10 @@ port = 9999
 
 s.connect((host, port))
 
-zone = sys.argv[1]
-status = sys.argv[2]
+zone = sys.argv[2]
+status = sys.argv[1]
 
-sendString = "ZONE:" + zone + ":" + status
+sendString = "ZONE:" + status + ":" + zone
 s.send(sendString.encode('ascii'))
 
 s.close()
