@@ -11,9 +11,9 @@ port = 9999
 s.connect((host, port))
 
 zone = sys.argv[1]
-duration = sys.argv[2]
+status = sys.argv[2]
 
-sendString = "WATER:" + zone + ":" + duration
+sendString = "ZONE:" + zone + ":" + status
 s.send(sendString.encode('ascii'))
 
 s.close()

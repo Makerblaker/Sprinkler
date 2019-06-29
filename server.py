@@ -24,6 +24,7 @@ Sensor = False
 
 #Is it currently raining
 isRaining = False
+
 defaultWaitDuration = 0
 
 def setup():
@@ -61,7 +62,12 @@ def setup():
 	addLog("System", "Setup complete")
 	
 def mainRun():
+	global isRaining
 	addLog("System", "Main Thread started")
+	 
+	 # Always check the switch
+	_thread.start_new_thread(checkSwitch, ((),))
+	
 	while True:
 		global serversocket
 
@@ -74,28 +80,50 @@ def mainRun():
 
 		# Split incoming message
 		requestType = strFromClient.split(":")
-
+		
 		# Do something with that message
-		# Is it raining
-		if(isRaining == False):
-			# Turn off LED if it was raining
-			statusLED("off")
-
-			# What was the command?
-			if(requestType[0] == "ZONE"):
-				
-				# Start flash
+		# What was the command?
+		if(requestType[0] == "WATER"):
+			
+			# Is it raining
+			if(isRaining == False):
+				# Turn off LED if it was raining
+				statusLED("off")
+				# Start watering
 				_thread.start_new_thread(water, (requestType[1], requestType[2], ) )
 				
-			elif(requestType[0] == "QUIT"):
-				destroy()
+		elif(requestType[0] == "ZONE"):
+			if(requestType[1] == "ON"):
+				zone(int(requestType[2]), "ON")
+			else:
+				zone(int(requestType[2]), "OFF")
+				
+		elif(requestType[0] == "RainStatus"):
+			# Some day we will send something back
+			print("nothing")
+			
+		elif(requestType[0] == "QUIT"):
+			destroy()
+			
+# Check switch
+def checkSwitch(self):
+	global isRaining
+	
+	while True:
+		state = GPIO.input(CancelButton)
+		if(state):
+			if(state != isRaining):
+				addLog("System", "Switch TRUE")
+				statusLED("solid")
+				isRaining = True
 		else:
-			while isRaining:
-				statusLED("blink")
-				rain()
-				sleep(2)
-
-# Water the lawn 
+			if(state != isRaining):
+				addLog("System", "Switch FALSE")
+				statusLED("off")
+				isRaining = False
+		sleep(2)
+	
+# Water the lawn
 def water(zoneNum, duration):
 	# Turn on zone
 	zone(int(zoneNum), "ON")
@@ -118,6 +146,7 @@ def zone(zoneSelect, onoff):
 		addLog('Zone ' + str(zoneSelect), 'OFF')
 
 def rain():
+	global isRaining
 	# Check if it's raining
 	if Sensor:
 		if GPIO.input(WaterSensor):
@@ -139,8 +168,6 @@ def statusLED(status):
 def addLog(currentZone, addedText):
 	now = datetime.datetime.now()
 	print ("{0}: {1}: {2}".format(now, currentZone, addedText))
-
-
 
 def destroy():
 	global serversocket
