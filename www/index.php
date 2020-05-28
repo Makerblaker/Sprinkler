@@ -98,7 +98,7 @@
 					<?php
 					foreach ($zones as $zone) {
 						echo "<tr>";
-						echo "<td>zone " . $zone . "</td>";
+						echo "<td>Zone " . $zone . "</td>";
 						echo "<td><a href=\"index.php?zone=" . $zone . "&status=ON\">ON</a>";
 						echo "<td><a href=\"index.php?zone=" . $zone . "&status=OFF\">OFF</a>";
 						echo "</tr>";
