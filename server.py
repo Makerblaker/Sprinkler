@@ -12,12 +12,12 @@ import datetime
 # sleep 30 && python /home/pi/Scripts/Sprinkler/Sprinkler.py > /home/pi/Scripts/Sprinkler/log.txt 2>&1
 
 # Set GPIO output points
-Zones = [17, 27, 22, 23]
-StatusLED = 12
+Zones = [5, 6, 13, 19]
+StatusLED = 16
 
 # Set GPIO input points
-CancelButton = 4
-WaterSensor = 18
+CancelButton = 18
+WaterSensor = 10
 
 # Water Sensor Enabled?
 Sensor = False
